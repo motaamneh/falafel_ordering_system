@@ -33,12 +33,12 @@ public class Restaurant {
 
     @Column(nullable = false)
     @NotNull(message = "Password cannot be null")
-    @Size(min = 8,max = 100,message = "Password has to be between 8 and 100 characters")
+    @Size(min = 8,message = "Password must be at least 8 characters")
     private String password;
 
     @Column(nullable = false)
     @NotNull(message = "Address cannot be null")
-    @Size(min = 2,max = 100, message = "Address has to be between 2 and 100 characters")
+    @Size(min = 2, message = "Address must be at least 2 characters")
     private String address;
 
     @Column(nullable = false)
@@ -46,9 +46,8 @@ public class Restaurant {
     @Size(min = 8,max = 20,message = "Phone number has to be between 8 and 20 characters")
     private String phone;
 
-
-    @Column(name = "is_enabled", nullable = false)
-    private Boolean isEnabled = true;
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
 
     @Column(name = "created_at", updatable = false, nullable = false)
     @CreationTimestamp

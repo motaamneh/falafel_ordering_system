@@ -1,6 +1,6 @@
 package com.motaamneh.falafel.model;
 
-public enum Status {
+public enum OrderStatus {
     PENDING,
     ACCEPTED,
     DECLINED
