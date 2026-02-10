@@ -7,6 +7,7 @@ import com.motaamneh.falafel.model.Role;
 import com.motaamneh.falafel.repository.RestaurantRepository;
 import com.motaamneh.falafel.repository.UserRepository;
 import com.motaamneh.falafel.service.AuthService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,12 +17,13 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthServiceImpl(UserRepository userRepository,
-                           RestaurantRepository restaurantRepository){
+                           RestaurantRepository restaurantRepository, PasswordEncoder passwordEncoder){
         this.userRepository = userRepository;
         this.restaurantRepository = restaurantRepository;
-
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -32,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
         }
         User user = new User();
         user.setEmail(email);
-        user.setPassword((password));
+        user.setPassword(passwordEncoder.encode(password));
         user.setFullName(fullName);
         user.setPhone(phone);
         user.setRole(Role.USER);
