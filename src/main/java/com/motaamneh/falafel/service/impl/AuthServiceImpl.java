@@ -3,6 +3,8 @@ package com.motaamneh.falafel.service.impl;
 import com.motaamneh.falafel.entity.Restaurant;
 import com.motaamneh.falafel.entity.User;
 import com.motaamneh.falafel.exception.EmailAlreadyExistsException;
+import com.motaamneh.falafel.exception.RestaurantDisabledException;
+import com.motaamneh.falafel.exception.UserDisabledException;
 import com.motaamneh.falafel.model.Role;
 import com.motaamneh.falafel.repository.RestaurantRepository;
 import com.motaamneh.falafel.repository.UserRepository;
@@ -46,11 +48,35 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Optional<User> loginUser(String email, String password) {
-        return Optional.empty();
+        Optional<User> userOpt = userRepository.findByEmail(email);
+
+        if(userOpt.isEmpty()) return Optional.empty();
+
+        User user = userOpt.get();
+        if(!user.getIsEnabled()){
+            throw new UserDisabledException("Account is disabled");
+        }
+        if(!passwordEncoder.matches(password, user.getPassword())){
+            return Optional.empty();
+        }
+        return Optional.of(user);
     }
 
     @Override
     public Optional<Restaurant> loginRestaurant(String email, String password) {
-        return Optional.empty();
+        Optional<Restaurant> restaurantOpt = restaurantRepository.findByEmail(email);
+        if(restaurantOpt.isEmpty()) return Optional.empty();
+
+        Restaurant restaurant = restaurantOpt.get();
+
+        if(!restaurant.getIsActive()){
+            throw new RestaurantDisabledException("Restaurant is disabled");
+        }
+
+        if(!passwordEncoder.matches(password, restaurant.getPassword())){
+            return Optional.empty();
+        }
+
+        return Optional.of(restaurant);
     }
 }
