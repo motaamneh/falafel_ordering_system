@@ -11,16 +11,16 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     // User views their own orders
-    List<Order> findByUserId(Long userId);
+    List<Order> findByUserId(Integer userId);
 
     // Restaurant views orders for their restaurant
-    List<Order> findByRestaurantId(Long restaurantId);
+    List<Order> findByRestaurantId(Integer restaurantId);
 
     // Restaurant views pending orders only
-    List<Order> findByRestaurantIdAndStatus(Long restaurantId, OrderStatus status);
+    List<Order> findByRestaurantIdAndStatus(Integer restaurantId, OrderStatus status);
 
     // User views their orders by status
-    List<Order> findByUserIdAndStatus(Long userId, OrderStatus status);
+    List<Order> findByUserIdAndStatus(Integer userId, OrderStatus status);
 
     // Optional: Find all orders by status (for admin)
     List<Order> findByStatus(OrderStatus status);

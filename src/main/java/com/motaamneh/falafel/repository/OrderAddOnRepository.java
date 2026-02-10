@@ -12,6 +12,6 @@ import java.util.List;
 public interface OrderAddOnRepository extends JpaRepository<OrderAddOn,Integer> {
 
     // Find all add-ons for a specific order (to display order details)
-    List<OrderAddOn> findByOrderId(Long orderId);
+    List<OrderAddOn> findByOrderId(Integer orderId);
 
 }

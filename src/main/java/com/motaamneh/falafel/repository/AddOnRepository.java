@@ -11,9 +11,9 @@ import java.util.List;
 public interface AddOnRepository extends JpaRepository<AddOn,Integer> {
 
     // Restaurant manages their own add-ons
-    List<AddOn> findByRestaurantId(Long restaurantId);
+    List<AddOn> findByRestaurantId(Integer restaurantId);
 
     // Find available add-ons for a restaurant (when user is ordering)
-    List<AddOn> findByRestaurantIdAndIsAvailable(Long restaurantId, Boolean isAvailable);
+    List<AddOn> findByRestaurantIdAndIsAvailable(Integer restaurantId, Boolean isAvailable);
 
 }
