@@ -1,10 +1,15 @@
 package com.motaamneh.falafel.service.impl;
 
+import com.motaamneh.falafel.dto.request.AddOnCreateRequestDto;
+import com.motaamneh.falafel.dto.request.AddOnUpdateRequestDto;
+import com.motaamneh.falafel.dto.response.AddOnPublicDto;
+import com.motaamneh.falafel.dto.response.AddOnResponseDto;
 import com.motaamneh.falafel.entity.AddOn;
 import com.motaamneh.falafel.entity.Restaurant;
 import com.motaamneh.falafel.exception.AddOnNotFoundException;
 import com.motaamneh.falafel.exception.InvalidPriceException;
 import com.motaamneh.falafel.exception.RestaurantNotFoundException;
+import com.motaamneh.falafel.mapper.AddOnMapper;
 import com.motaamneh.falafel.repository.AddOnRepository;
 import com.motaamneh.falafel.repository.RestaurantRepository;
 import com.motaamneh.falafel.service.AddOnService;
@@ -21,85 +26,84 @@ public class AddOnServiceImpl implements AddOnService {
 
     private final AddOnRepository addOnRepository;
     private final RestaurantRepository restaurantRepository;
+    private final AddOnMapper addOnMapper;
 
-    public AddOnServiceImpl(AddOnRepository addOnRepository, RestaurantRepository restaurantRepository) {
+    public AddOnServiceImpl(AddOnRepository addOnRepository, RestaurantRepository restaurantRepository, AddOnMapper addOnMapper) {
         this.addOnRepository = addOnRepository;
         this.restaurantRepository = restaurantRepository;
+        this.addOnMapper = addOnMapper;
     }
 
     @Override
-    public AddOn createAddOn(Integer restaurantId, String name, BigDecimal price) {
+    public AddOnResponseDto createAddOn(Integer restaurantId, AddOnCreateRequestDto
+            dto) {
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                .orElseThrow(()-> new RestaurantNotFoundException("Restaurant not found"));
-        if(price.compareTo(BigDecimal.ZERO)<=0){
+                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant not found"));
+        if (dto.price().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidPriceException("Price must be positive");
         }
-        AddOn addOn= new AddOn();
+        AddOn addOn = new AddOn();
         addOn.setRestaurant(restaurant);
-        addOn.setName(name);
-        addOn.setPrice(price);
+        addOn.setName(dto.name());
+        addOn.setPrice(dto.price());
         addOn.setIsAvailable(true);
 
-        return addOnRepository.save(addOn);
-
+        return addOnMapper.toResponseDto(addOnRepository.save(addOn));
     }
 
     @Override
-    public AddOn updateAddOn(Integer addOnId, String name, BigDecimal price, Boolean isAvailable) {
-        AddOn addOn= addOnRepository.findById(addOnId)
-                .orElseThrow(()-> new AddOnNotFoundException("Add-on not found"));
-
-        if(price.compareTo(BigDecimal.ZERO)<=0){
+    public AddOnResponseDto updateAddOn(Integer addOnId, AddOnUpdateRequestDto dto) {
+        AddOn addOn = addOnRepository.findById(addOnId)
+                .orElseThrow(() -> new AddOnNotFoundException("Add-on not found"));
+        if (dto.price().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidPriceException("Price must be positive");
         }
+        addOn.setName(dto.name());
+        addOn.setPrice(dto.price());
+        addOn.setIsAvailable(dto.isAvailable());
 
-        addOn.setName(name);
-        addOn.setPrice(price);
-        addOn.setIsAvailable(isAvailable);
-
-        return addOnRepository.save(addOn);
-
+        return addOnMapper.toResponseDto(addOnRepository.save(addOn));
     }
 
     @Override
     public void deleteAddOn(Integer addOnId) {
-        AddOn addOn= addOnRepository.findById(addOnId)
-                .orElseThrow(()-> new AddOnNotFoundException("Add-on not found"));
-
+        AddOn addOn = addOnRepository.findById(addOnId)
+                .orElseThrow(() -> new AddOnNotFoundException("Add-on not found"));
         addOnRepository.delete(addOn);
     }
 
     @Override
-    public Optional<AddOn> findAddOnById(Integer id) {
-        return  addOnRepository.findById(id);
+    public AddOnResponseDto findAddOnById(Integer id) {
+        AddOn addOn = addOnRepository.findById(id)
+                .orElseThrow(() -> new AddOnNotFoundException("Add-on not found"));
+        return addOnMapper.toResponseDto(addOn);
     }
 
     @Override
-    public List<AddOn> getRestaurantAddOns(Integer restaurantId) {
-        return addOnRepository.findByRestaurantId(restaurantId);
+    public List<AddOnResponseDto> getRestaurantAddOns(Integer restaurantId) {
+        return
+                addOnMapper.toResponseDtoList(addOnRepository.findByRestaurantId(restaurantId));
     }
 
     @Override
-    public List<AddOn> getAvailableAddOns(Integer restaurantId) {
-        return addOnRepository.findByRestaurantIdAndIsAvailable(restaurantId, true);
+    public List<AddOnPublicDto> getAvailableAddOns(Integer restaurantId) {
+        return addOnMapper.toPublicDtoList(
+                addOnRepository.findByRestaurantIdAndIsAvailable(restaurantId, true));
     }
 
     @Override
     public void markAsAvailable(Integer addOnId) {
-        AddOn addOn= addOnRepository.findById(addOnId)
-                .orElseThrow(()-> new AddOnNotFoundException("Add-on not found"));
-
+        AddOn addOn = addOnRepository.findById(addOnId)
+                .orElseThrow(() -> new AddOnNotFoundException("Add-on not found"));
         addOn.setIsAvailable(true);
         addOnRepository.save(addOn);
     }
 
     @Override
     public void markAsUnavailable(Integer addOnId) {
-        AddOn addOn= addOnRepository.findById(addOnId)
-                .orElseThrow(()-> new AddOnNotFoundException("Add-on not found"));
-
+        AddOn addOn = addOnRepository.findById(addOnId)
+                .orElseThrow(() -> new AddOnNotFoundException("Add-on not found"));
         addOn.setIsAvailable(false);
         addOnRepository.save(addOn);
-
     }
 }

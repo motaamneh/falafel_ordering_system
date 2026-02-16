@@ -1,10 +1,19 @@
 package com.motaamneh.falafel.service.impl;
 
+import com.motaamneh.falafel.dto.request.RestaurantLoginRequestDto;
+import com.motaamneh.falafel.dto.request.UserLoginRequestDto;
+import com.motaamneh.falafel.dto.request.UserRegistrationDto;
+import com.motaamneh.falafel.dto.response.LoginResponseDto;
+import com.motaamneh.falafel.dto.response.RestaurantResponseDto;
+import com.motaamneh.falafel.dto.response.UserResponseDto;
 import com.motaamneh.falafel.entity.Restaurant;
 import com.motaamneh.falafel.entity.User;
 import com.motaamneh.falafel.exception.EmailAlreadyExistsException;
+import com.motaamneh.falafel.exception.InvalidCredentialsException;
 import com.motaamneh.falafel.exception.RestaurantDisabledException;
 import com.motaamneh.falafel.exception.UserDisabledException;
+import com.motaamneh.falafel.mapper.RestaurantMapper;
+import com.motaamneh.falafel.mapper.UserMapper;
 import com.motaamneh.falafel.model.Role;
 import com.motaamneh.falafel.repository.RestaurantRepository;
 import com.motaamneh.falafel.repository.UserRepository;
@@ -20,52 +29,55 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
+    private final RestaurantMapper restaurantMapper;
 
-    public AuthServiceImpl(UserRepository userRepository,
-                           RestaurantRepository restaurantRepository, PasswordEncoder passwordEncoder){
+    public AuthServiceImpl(UserRepository userRepository, RestaurantRepository restaurantRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, RestaurantMapper restaurantMapper) {
         this.userRepository = userRepository;
         this.restaurantRepository = restaurantRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
+        this.restaurantMapper = restaurantMapper;
     }
 
-
     @Override
-    public User registerUser(String email, String password, String fullName, String phone) {
-        if(userRepository.existsByEmail(email)){
+    public UserResponseDto registerUser(UserRegistrationDto registrationDto) {
+        if(userRepository.existsByEmail(registrationDto.email())){
             throw new EmailAlreadyExistsException("Email already registered");
         }
         User user = new User();
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setFullName(fullName);
-        user.setPhone(phone);
+        user.setEmail(registrationDto.email());
+        user.setPassword(passwordEncoder.encode(registrationDto.password()));
+        user.setFullName(registrationDto.fullName());
+        user.setPhone(registrationDto.phone());
         user.setRole(Role.USER);
         user.setIsEnabled(true);
 
-        return userRepository.save(user);
+        return userMapper.toResponseDto(userRepository.save(user));
 
     }
 
     @Override
-    public Optional<User> loginUser(String email, String password) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
+    public LoginResponseDto loginUser(UserLoginRequestDto loginRequestDto) {
+        Optional<User> userOpt = userRepository.findByEmail(loginRequestDto.email());
 
-        if(userOpt.isEmpty()) return Optional.empty();
+        if(userOpt.isEmpty()) throw new InvalidCredentialsException("Invalid email or password");
 
         User user = userOpt.get();
         if(!user.getIsEnabled()){
             throw new UserDisabledException("Account is disabled");
         }
-        if(!passwordEncoder.matches(password, user.getPassword())){
-            return Optional.empty();
+        if(!passwordEncoder.matches(loginRequestDto.password(), user.getPassword())){
+            throw new InvalidCredentialsException("Invalid email or password");
         }
-        return Optional.of(user);
+        //UserResponseDto userResponseDto = userMapper.toResponseDto(user);
+        return userMapper.toLoginResponseDto(user);
     }
 
     @Override
-    public Optional<Restaurant> loginRestaurant(String email, String password) {
-        Optional<Restaurant> restaurantOpt = restaurantRepository.findByEmail(email);
-        if(restaurantOpt.isEmpty()) return Optional.empty();
+    public LoginResponseDto loginRestaurant(RestaurantLoginRequestDto restaurantLoginRequestDto) {
+        Optional<Restaurant> restaurantOpt = restaurantRepository.findByEmail(restaurantLoginRequestDto.email());
+        if(restaurantOpt.isEmpty()) throw new InvalidCredentialsException("Invalid email or password");
 
         Restaurant restaurant = restaurantOpt.get();
 
@@ -73,10 +85,11 @@ public class AuthServiceImpl implements AuthService {
             throw new RestaurantDisabledException("Restaurant is disabled");
         }
 
-        if(!passwordEncoder.matches(password, restaurant.getPassword())){
-            return Optional.empty();
+        if(!passwordEncoder.matches(restaurantLoginRequestDto.password(), restaurant.getPassword())){
+            throw new InvalidCredentialsException("Invalid email or password");
         }
 
-        return Optional.of(restaurant);
+        //RestaurantResponseDto restaurantResponseDto = restaurantMapper.toRestaurantResponseDto(restaurant);
+        return restaurantMapper.toRestaurantLoginRequestDto(restaurant);
     }
 }
