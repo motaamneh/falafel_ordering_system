@@ -24,14 +24,14 @@ public class UserMapper {
         );
     }
 
-    public LoginResponseDto toLoginResponseDto(User user){
+    public LoginResponseDto toLoginResponseDto(User user, String token){
         return new LoginResponseDto(
           user.getId(),
                 user.getEmail(),
                 user.getFullName(),
                 user.getRole().name(),
-                "Login successful"
-
+                "Login successful",
+                token
         );
     }
 

@@ -5,5 +5,8 @@ public record LoginResponseDto(
         String email,
         String displayName,
         String role,
-        String message) {
+        String message,
+        String token
+
+) {
 }

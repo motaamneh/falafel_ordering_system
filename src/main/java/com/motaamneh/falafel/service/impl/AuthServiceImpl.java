@@ -17,6 +17,7 @@ import com.motaamneh.falafel.mapper.UserMapper;
 import com.motaamneh.falafel.model.Role;
 import com.motaamneh.falafel.repository.RestaurantRepository;
 import com.motaamneh.falafel.repository.UserRepository;
+import com.motaamneh.falafel.security.JwtUtil;
 import com.motaamneh.falafel.service.AuthService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,13 +32,15 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final RestaurantMapper restaurantMapper;
+    private final JwtUtil jwtUtil;
 
-    public AuthServiceImpl(UserRepository userRepository, RestaurantRepository restaurantRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, RestaurantMapper restaurantMapper) {
+    public AuthServiceImpl(UserRepository userRepository, RestaurantRepository restaurantRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, RestaurantMapper restaurantMapper, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.restaurantRepository = restaurantRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.restaurantMapper = restaurantMapper;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -70,8 +73,8 @@ public class AuthServiceImpl implements AuthService {
         if(!passwordEncoder.matches(loginRequestDto.password(), user.getPassword())){
             throw new InvalidCredentialsException("Invalid email or password");
         }
-        //UserResponseDto userResponseDto = userMapper.toResponseDto(user);
-        return userMapper.toLoginResponseDto(user);
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId());
+        return userMapper.toLoginResponseDto(user, token);
     }
 
     @Override
@@ -89,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
-        //RestaurantResponseDto restaurantResponseDto = restaurantMapper.toRestaurantResponseDto(restaurant);
-        return restaurantMapper.toRestaurantLoginRequestDto(restaurant);
+        String token = jwtUtil.generateToken(restaurant.getEmail(), "RESTAURANT", restaurant.getId());
+        return restaurantMapper.toRestaurantLoginRequestDto(restaurant, token);
     }
 }

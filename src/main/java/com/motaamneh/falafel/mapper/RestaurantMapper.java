@@ -33,13 +33,14 @@ public class RestaurantMapper {
           restaurant.getIsActive()
         );
     }
-    public LoginResponseDto toRestaurantLoginRequestDto(Restaurant restaurant){
+    public LoginResponseDto toRestaurantLoginRequestDto(Restaurant restaurant, String token){
         return new LoginResponseDto(
           restaurant.getId(),
           restaurant.getEmail(),
           restaurant.getName(),
           "RESTAURANT",
-          "Login successful"
+          "Login successful",
+          token
         );
     }
     public List<RestaurantResponseDto> toResponseDto(List<Restaurant> restaurants){
