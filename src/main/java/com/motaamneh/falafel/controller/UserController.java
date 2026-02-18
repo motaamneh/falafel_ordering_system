@@ -64,7 +64,7 @@ public class UserController {
 
     @PatchMapping("/{id}/enable")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> enableUser(@PathVariable Integer id{
+    public ResponseEntity<Void> enableUser(@PathVariable Integer id){
         userService.enableUser(id);
         return ResponseEntity.noContent().build();
 
