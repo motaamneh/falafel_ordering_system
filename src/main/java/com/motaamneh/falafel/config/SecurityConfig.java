@@ -29,9 +29,11 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // Swagger UI
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         // Public endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/restaurants/**").permitAll() // Browse restaurants
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/restaurants/**").permitAll() // Browse restaurants
 
                         // Protected endpoints
                         .anyRequest().authenticated()

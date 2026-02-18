@@ -6,6 +6,7 @@ import com.motaamneh.falafel.dto.request.UserRegistrationDto;
 import com.motaamneh.falafel.dto.response.LoginResponseDto;
 import com.motaamneh.falafel.dto.response.UserResponseDto;
 import com.motaamneh.falafel.service.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication", description = "User and Restaurant authentication endpoints")
 public class AuthController {
 
     private final AuthService authService;
