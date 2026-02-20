@@ -31,7 +31,7 @@ public class AddOnController {
 
     }
     // Only the restaurant that owns this restaurantId can create add-ons for it
-    @PostMapping("/restaurants/{restaurantId}/add -ons")
+    @PostMapping("/restaurants/{restaurantId}/add-ons")
     @PreAuthorize("hasRole('RESTAURANT')")
     public ResponseEntity<AddOnResponseDto>
     createAddOn(@PathVariable Integer restaurantId,
@@ -49,7 +49,7 @@ public class AddOnController {
     }
 
     // GET /api/restaurants/{restaurantId}/add-ons —Public
-    @GetMapping("/restaurants/{restaurantId}/add- ons")
+    @GetMapping("/restaurants/{restaurantId}/add-ons")
     public ResponseEntity<List<AddOnPublicDto>>
     getAvailableAddOns(@PathVariable Integer
                                restaurantId) {
