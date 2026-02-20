@@ -57,7 +57,7 @@ public class AddOnController {
     }
 
     // PUT /api/add-ons/{id} — Restaurant owner updates their own add-on
-    // Note: the service should verify this add-onbelongs to the caller's restaurant
+    // Note: the service should verify this add-on belongs to the caller's restaurant
     @PutMapping("/add-ons/{id}")
     @PreAuthorize("hasRole('RESTAURANT')")
     public ResponseEntity<AddOnResponseDto>
